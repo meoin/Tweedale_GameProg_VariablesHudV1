@@ -136,14 +136,6 @@ namespace Tweedale_GameProg_VariablesHudV1
 
         static void Main(string[] args)
         {
-            //string name;
-            //float health = 100;
-            //float armor = 0;
-            //int score = 0;
-
-            //bool departed = false;
-            //bool piano = false;
-            //float kills = 0;
 
             var rand = new Random();
 
