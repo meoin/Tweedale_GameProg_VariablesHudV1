@@ -22,6 +22,11 @@ namespace Tweedale_GameProg_VariablesHudV1
 {
     internal class Program
     {
+        static int[] ammoMax = {999, 8, 4, 12, 6, 2, 3, 1};
+        static int[] ammoPower = { 1, 4, 8, 2, 6, 10, 4, 12 };
+        static int[] ammoCurrent = { 999, 0, 0, 0, 0, 0, 0, 0 };
+        static int[] ammoLoaded = { 999, 0, 0, 0, 0, 0, 0, 0 };
+
         static string name;
         static float health = 100;
         static float armor = 0;
@@ -38,7 +43,12 @@ namespace Tweedale_GameProg_VariablesHudV1
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("{0,0}{1,30}{2,15}{3,20}{4,10}{5,10}", "Character: " + name, "Health: " + HealthStatus(health), "Armor: " + armor, "Weapon: " + weapon, "Day " + days, "Score: " + score);
-
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            foreach (int w in Enum.GetValues(typeof(Weapons)))
+            {
+                Console.Write($"{(Weapons)w}: {ammoLoaded[w]}/{ammoCurrent[w]}     ");
+            }
+            Console.Write("\n");
             Console.ForegroundColor = ConsoleColor.White;
         }
 
@@ -125,11 +135,50 @@ namespace Tweedale_GameProg_VariablesHudV1
             }
         }
 
+        static int Fire(Weapons weaponFired) 
+        {
+            int wId = (int)weaponFired;
+            if (ammoCurrent[wId] > 0)
+            {
+                ammoLoaded[wId] -= 1;
+                return ammoPower[wId];
+            }
+            else 
+            {
+                return 0;
+            }
+        }
+
+        static void Reload(Weapons weapon) 
+        {
+            int wId = (int)weapon;
+            if (ammoCurrent[wId] >= ammoMax[wId])
+            {
+                ammoLoaded[wId] = ammoMax[wId];
+                ammoCurrent[wId] -= ammoMax[wId];
+            }
+            else 
+            {
+                ammoLoaded[wId] = ammoCurrent[wId];
+                ammoCurrent[wId] = 0;
+            }
+        }
+
         static Weapons GetRandomWeapon() 
         {
             int weaponId = rand.Next(1, 7);
             
             Weapons selectedWeapon = (Weapons)weaponId;
+
+            return selectedWeapon;
+        }
+
+        static Weapons GetRandomAmmo()
+        {
+            int weaponId = rand.Next(1, 7);
+
+            Weapons selectedWeapon = (Weapons)weaponId;
+            ammoCurrent[weaponId] = Math.Min(ammoCurrent[weaponId] + ammoMax[weaponId], ammoMax[weaponId] * 3);
 
             return selectedWeapon;
         }
@@ -187,7 +236,7 @@ namespace Tweedale_GameProg_VariablesHudV1
                 Console.WriteLine("Your health is fully restored!");
                 Heal(100);
             }
-            else if (randomNumber < 0.99)
+            else if (randomNumber < 0.85)
             {
                 // Find a new weapon
                 Weapons foundWeapon = GetRandomWeapon();
@@ -210,6 +259,14 @@ namespace Tweedale_GameProg_VariablesHudV1
                 {
                     Console.WriteLine($"\nYou don't need this {foundWeapon} where you're going. You choose to leave it behind and stick with your existing {weapon}.");
                 }
+            }
+            else if (randomNumber < 0.99)
+            {
+                // Find a new weapon
+                Weapons foundWeapon = GetRandomAmmo();
+
+                Console.WriteLine($"You just found some {foundWeapon} ammo laying out in the open!");
+                Console.WriteLine($"You now have {ammoCurrent[(int)foundWeapon]} {foundWeapon} ammo.");
             }
             else
             {
